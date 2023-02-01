@@ -28,6 +28,7 @@
     "@nestjs/graphql": "^10.1.7",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/platform-fastify": "^9.2.1",
+    "@nestjs/swagger": "^6.1.4",
     "fastify": "^4.12.0",
     "fastify-file-interceptor": "^1.0.8",
     "graphql": "^16.6.0",
