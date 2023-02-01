@@ -8,7 +8,22 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
-      logger: true,
+      logger: {
+        level: 'debug',
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            levelFirst: true,
+            ignore: 'serviceContext',
+            translateTime: 'SYS:HH:MM:ss.l',
+          },
+        },
+        redact: {
+          paths: ['pid', 'hostname'],
+          remove: true,
+        },
+      },
       genReqId: (request: FastifyRequest) => {
         return request.headers['x-request-id'] || randomStringGenerator();
       },
