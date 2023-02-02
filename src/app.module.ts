@@ -2,16 +2,17 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver } from '@nestjs/apollo';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { AppResolver } from './app.resolver';
 
 @Module({
   imports: [
-    GraphQLModule.forRootAsync({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService): ApolloDriverConfig => ({
         context: ({ req, connection }) => ({
           req: req || connection?.context,
         }),
@@ -19,14 +20,22 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         debug: true,
         installSubscriptionHandlers: true,
         subscriptions: {
-          path: '/api/graphql',
-          keepAlive: configService.get('keepAliveMS'),
-          onConnect: (connectionParams) => connectionParams,
+          'subscriptions-transport-ws': {
+            path: '/api/graphql',
+            keepAlive: configService.get('keepAliveMS'),
+            onConnect: (connectionParams) => connectionParams,
+          },
+        },
+        playground: true,
+        autoSchemaFile: 'schema.graphql',
+        buildSchemaOptions: {
+          dateScalarMode: 'isoDate',
+          numberScalarMode: 'float',
         },
       }),
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AppResolver],
 })
 export class AppModule {}
